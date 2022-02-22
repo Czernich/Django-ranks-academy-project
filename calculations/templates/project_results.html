@@ -1,0 +1,265 @@
+{% extends 'main.html' %}
+
+{% block content %}
+  <button id="myButton" class="btn btn-outline-secondary btn-lg"><< Back to Home Page</button>
+  <br>
+  <hr>
+
+    <div class="output-data">
+        <h3>Dane wejściowe:</h3>
+        <table class="table">
+          <caption>Tabela 1. Dane wczytane z arkusza excel.</caption>
+          <tbody>
+            <tr>
+              <th scope="row">t</th>
+              {% for value in  results.excel_data.data.t %}
+              <td>{{value}}</td>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th scope="row">y(t)</th>
+              {% for value in  results.excel_data.data.yt %}
+              <td>{{value}}</td>
+              {% endfor %}
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <table class="table">
+          <h3>Rezultaty:</h3>
+            <caption>Tabela 2. Dane obliczone z wykorzystaniem skryptu</caption>
+            <tbody>
+                <tr>
+                    <th scope="row">t</th>
+                    {% for value in  results.excel_data.data.t %}
+                    <td>{{value}}</td>
+                    {% endfor %}
+                </tr>
+
+                    {% for key,value in results.items %}
+                        {% if key != 'excel_data' %}
+                          <tr>
+                              <th scope="row">{{value.name}}</th>
+                                {% if value|length == 1 %}
+                                  <td>{{value.data.0}}</td>
+                                {% else %}
+                                  {% for number in value.data %}
+                                    <td>{{number}}</td>
+                                  {% endfor %}
+                                {% endif %}
+                          </tr>
+                        {% endif %}
+                    {% endfor %}
+            </tbody>
+        </table>
+
+  
+{% comment %} ______________PLOTS____________________ {% endcomment %}
+        <h3 class='plot-title'>ZADANY SZEREG CZASOWY</h3>
+        <br>
+        <canvas id="yt" width="100" height="50"></canvas>
+        <script>
+          const ctx_yt = document.getElementById('yt').getContext('2d');
+          const yt = new Chart(ctx_yt, {
+              type: 'line',
+              data: {
+                  labels: [{% for result in results.excel_data.data.t %} {{result}}, {% endfor %}],
+                  datasets: [{
+                      label: 'y(t)',
+                      data: [{% for result in results.excel_data.data.yt %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+        </script>
+        <br>
+
+        {% comment %} <h3 class='plot-title'>ZADANY SZEREG WRAZ Z SZACOWANYM WYRAZEM</h3>
+        <br>
+        <canvas id="yt_expected" width="100" height="50"></canvas>
+        <script>
+          const ctx_yt_expected = document.getElementById('yt_expected').getContext('2d');
+          const yt_expected = new Chart(ctx_yt_expected, {
+              type: 'line',
+              data: {
+                  labels: [{% for result in results.excel_data.data.t %} {{result}}, {% endfor %}],
+                  datasets: [{
+                      label: 'y(t)',
+                      data: [{% for result in results.excel_data.data.yt %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+        </script>
+        <br> {% endcomment %}
+
+        <h3 class='plot-title'>SZEREG W ZESTAWIENIU ZE ŚREDNIMI RUCHOMYMI WIELO-OKRESOWYMI</h3>
+        <br>
+        <canvas id="yt_ruchome" width="100" height="50"></canvas>
+        <script>
+          const ctx_yt_ruchome = document.getElementById('yt_ruchome').getContext('2d');
+          const yt_ruchome = new Chart(ctx_yt_ruchome, {
+              type: 'line',
+              data: {
+                  labels: [{% for result in results.excel_data.data.t %} {{result}}, {% endfor %}],
+                  datasets: [{
+                      label: 'y(t)',
+                      data: [{% for result in results.excel_data.data.yt %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  },
+                  {
+                      label: 'Średnie ruchome 3 okresowe',
+                      data: [{% for result in results.three_period_moving_avg.data %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  },
+                  {
+                      label: 'Średnie ruchome 4 okresowe',
+                      data: [{% for result in results.four_period_moving_avg.data %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  },
+                  {
+                      label: 'Średnie ruchome 5 okresowe',
+                      data: [{% for result in results.five_period_moving_avg.data %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+        </script>
+        <br>
+
+        <h3 class='plot-title'>SZEREG W ZESTAWIENIU Z WYRÓWNANIAMI WYKŁADNICZYMI</h3>
+        <br>
+        <canvas id="yt_wykladnicze" width="100" height="50"></canvas>
+        <script>
+          const ctx_yt_wykladnicze = document.getElementById('yt_wykladnicze').getContext('2d');
+          const yt_wykladnicze = new Chart(ctx_yt_wykladnicze, {
+              type: 'line',
+              data: {
+                  labels: [{% for result in results.excel_data.data.t %} {{result}}, {% endfor %}],
+                  datasets: [{
+                      label: 'y(t)',
+                      data: [{% for result in results.excel_data.data.yt %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  },{
+                      label: 'Wyrównanie wykładnicze dla alfa = 0.3',
+                      data: [{% for result in results.exponential_smoothing_method_alfa1.data %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  },
+                  {
+                      label: 'Wyrównanie wykładnicze dla alfa = 0.7',
+                      data: [{% for result in results.exponential_smoothing_method_alfa2.data %} {{result}}, {% endfor %}],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                          'rgba(153, 102, 255, 1)',
+                          'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 5
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+        </script>
+        <br>
+        
+
+
+      <script type="text/javascript">
+        document.getElementById("myButton").onclick = function () {
+            location.href = "{% url 'front_site' %}";
+        };
+      </script>
+{% endblock content %}

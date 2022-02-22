@@ -1,0 +1,22 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<button id="myButton" class="btn btn-outline-secondary btn-lg"><< Back to Home Page</button>
+<br>
+<br>
+<br>
+<h1>WYPEŁNIJ FORMULARZ STARTOWY</h1>
+
+<form class='starting-form' action="" method="POST" enctype=multipart/form-data>
+    {% csrf_token %}
+    {{form.as_p}}
+    <input class='btn btn-dark form-button' type="submit">
+</form>
+
+<script type="text/javascript">
+    document.getElementById("myButton").onclick = function () {
+        location.href = "{% url 'front_site' %}";
+    };
+</script>
+
+{% endblock content %}

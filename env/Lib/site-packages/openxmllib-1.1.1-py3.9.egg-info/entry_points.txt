@@ -1,0 +1,3 @@
+[console_scripts]
+openxmlinfo = openxmllib.shell:openxmlinfo
+

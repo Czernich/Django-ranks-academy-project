@@ -1,0 +1,37 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1>Kliknij jeśli chcesz rozpocząć</h1>
+<br>
+<button id="createButton" class="btn btn-dark btn-lg">Create Project</button>
+<br>
+<hr>
+
+<h3 class='h3-front-page'>DOSTĘPNE PROJEKTY </h3>
+
+<table class='table front-table'>
+    <thead class='thead-dark'>
+        <tr>
+            <th>Utworzono</th>
+            <th>Tytuł</th>
+            <th>Podgląd</th>
+        </tr>
+    </thead>
+    {% for project in projects %}
+    <tr>
+        <td>{{project.created_at}}</td>
+        <td>{{project.title}}</td>
+        <td><a href="{% url 'show_project' project.id %}">Results</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+<script type="text/javascript">
+    document.getElementById("createButton").onclick = function () {
+        location.href = "{% url 'create_project' %}";
+    };
+</script>
+
+{% endblock content %}
